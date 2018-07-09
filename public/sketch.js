@@ -1,34 +1,33 @@
+var afinn;
+
+function preload() {
+  afinn = loadJSON('afinn.json');
+}
+
 function setup() {
-  createCanvas(400, 400);
-  console.log('running');
-  drawData();
-  var button = select('#submit');
-  button.mousePressed(submitWord);
+  noCanvas();
+  var txt = select('#txt');
+  txt.input(typing);
 }
 
-function drawData() {
-  loadJSON('/all', gotData);
-}
-
-function submitWord() {
-  var word = select('#word').value();
-  var score = select('#score').value();
-  console.log(word, score);
-  loadJSON('add/' + word + '/' + score, (data)=>{
-    console.log(data);
-    drawData();
-  }); // get request
-}
-
-function gotData(data) {
-  background(0);
-  console.log(data);
-  var keys = Object.keys(data);
-  for (var i = 0; i < keys.length; i++) {
-    var word = keys[i];
-    var score = data[word];
-    fill(255);
-    text(word + " : " + score, random(width), random(height));
+function typing() {
+  var words = txt.value.split(/\W/);
+  console.log(words);
+  var scoredwords = [];
+  var totalScore = 0;
+  for (var i = 0; i < words.length; i++) {
+    var word = words[i].toLowerCase();
+    if (afinn.hasOwnProperty(word)) {
+      var score = afinn[word];
+      totalScore += Number(score);
+      scoredwords.push(word + ': ' + score + " " );
+    }
   }
-  console.log(keys);
+  select('#score').html('score: ' + totalScore );
+  select('#comparative').html('comparative: ' + totalScore / words.length);
+  select('#wordlist').html(scoredwords);
+}
+
+function draw() {
+
 }
